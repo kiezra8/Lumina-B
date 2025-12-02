@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina Beauty - Premium Beauty Services & Products</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .provider-section-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+
+        .provider-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s;
+        }
+
+        .provider-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 30px rgba(236, 72, 153, 0.4);
+        }
+
+        .neon-badge {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+        }
+
+        /* Custom Animations */
+        @keyframes blob {
+            0% {
+                transform: translate(0px, 0px) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+
+            100% {
+                transform: translate(0px, 0px) scale(1);
+            }
+        }
+
+        .animate-blob {
+            animation: blob 7s infinite;
+        }
+
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fade-in-up 0.8s ease-out forwards;
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .animate-fade-in {
+            animation: fade-in 0.5s ease-out forwards;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.05);
+            }
+        }
+
+        .animate-pulse-glow {
+            animation: pulse-glow 3s infinite;
+        }
+
+        @keyframes kenburns {
+            0% {
+                transform: scale(1);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            40% {
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .animate-kenburns {
+            animation: kenburns 15s infinite;
+        }
+
+        .animation-delay-100 {
+            animation-delay: 0.1s;
+        }
+
+        .animation-delay-200 {
+            animation-delay: 0.2s;
+        }
+
+        .animation-delay-300 {
+            animation-delay: 0.3s;
+        }
+
+        .animation-delay-400 {
+            animation-delay: 0.4s;
+        }
+
+        .animation-delay-500 {
+            animation-delay: 0.5s;
+        }
+
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+
+        .nav-btn.active {
+            color: #0284c7;
+            /* sky-600 */
+        }
+
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+
+    <!-- Header -->
+    <header
+        class="fixed w-full z-50 transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="switchView('home')">
+                <div class="bg-gradient-to-r from-sky-400 to-pink-500 p-2 rounded-xl shadow-lg shadow-pink-500/20">
+                    <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1
+                        class="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 hidden sm:block">
+                        Lumina<span class="text-sky-500">B</span>
+                    </h1>
+                    <h1
+                        class="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 sm:hidden">
+                        L<span class="text-sky-500">B</span>
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-md mx-4">
+                <div class="relative group">
+                    <input type="text" placeholder="Search..."
+                        class="w-full bg-gray-100 border-transparent focus:bg-white focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 rounded-full py-2 pl-10 pr-4 transition-all duration-300 text-sm outline-none">
+                    <i data-lucide="search"
+                        class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-sky-500 transition-colors"></i>
+                </div>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8">
+                <button onclick="switchView('home')" id="nav-home"
+                    class="nav-btn text-sm font-bold text-gray-500 hover:text-sky-600 transition-colors uppercase tracking-wide">Home</button>
+                <button onclick="switchView('services')" id="nav-services"
+                    class="nav-btn text-sm font-bold text-gray-500 hover:text-sky-600 transition-colors uppercase tracking-wide">Services</button>
+                <button onclick="switchView('products')" id="nav-products"
+                    class="nav-btn text-sm font-bold text-gray-500 hover:text-sky-600 transition-colors uppercase tracking-wide">Shop</button>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <button onclick="toggleCart()"
+                    class="relative p-2 hover:bg-gray-100 rounded-full transition-colors group">
+                    <i data-lucide="shopping-cart"
+                        class="w-6 h-6 text-gray-600 group-hover:text-sky-600 transition-colors"></i>
+                    <span id="cart-count"
+                        class="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md">0</span>
+                </button>
+                <button
+                    class="hidden md:flex bg-gray-900 text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    Sign In
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-24 md:pb-12">
+
+        <!-- HOME VIEW -->
+        <div id="view-home" class="view-section animate-fade-in">
+            <!-- Hero Section -->
+            <div class="relative h-[500px] overflow-hidden mb-12 group">
+                <!-- Background Images with Ken Burns Effect -->
+                <div class="absolute inset-0 w-full h-full bg-gray-900">
+                    <img src="https://images.unsplash.com/photo-1624562563808-1700656e4c06?w=1600"
+                        class="absolute inset-0 w-full h-full object-cover opacity-0 animate-kenburns"
+                        style="animation-delay: 0s;">
+                    <img src="https://images.unsplash.com/photo-1504703395950-b89145a5425b?w=1600"
+                        class="absolute inset-0 w-full h-full object-cover opacity-0 animate-kenburns"
+                        style="animation-delay: 5s;">
+                    <img src="https://images.unsplash.com/photo-1583864697784-a0efc8379f70?w=1600"
+                        class="absolute inset-0 w-full h-full object-cover opacity-0 animate-kenburns"
+                        style="animation-delay: 10s;">
+                </div>
+
+                <!-- Overlay -->
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
+                    <div class="container mx-auto px-6">
+                        <div class="max-w-2xl text-white space-y-6">
+                            <div
+                                class="inline-block px-4 py-1 rounded-full border border-pink-500/50 bg-pink-500/10 backdrop-blur-md text-pink-300 text-sm font-medium mb-4 animate-fade-in-up">
+                                ✨ The Future of Beauty is Here
+                            </div>
+                            <h1
+                                class="text-5xl md:text-7xl font-black leading-tight tracking-tight animate-fade-in-up animation-delay-100">
+                                Reveal Your <br>
+                                <span
+                                    class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-sky-400 animate-pulse-glow">Inner
+                                    Glow</span>
+                            </h1>
+                            <p
+                                class="text-xl text-gray-300 leading-relaxed max-w-lg animate-fade-in-up animation-delay-200">
+                                Experience premium beauty services delivered to your doorstep. Professional, reliable,
+                                and tailored just for you.
+                            </p>
+                            <div class="flex flex-wrap gap-4 pt-4 animate-fade-in-up animation-delay-300">
+                                <button onclick="switchView('services')"
+                                    class="px-8 py-4 bg-white text-gray-900 rounded-full font-bold hover:bg-gray-100 transition transform hover:scale-105 shadow-lg shadow-white/10 flex items-center gap-2">
+                                    Book Now <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                                </button>
+                                <button onclick="switchView('products')"
+                                    class="px-8 py-4 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full font-bold hover:bg-white/20 transition transform hover:scale-105 flex items-center gap-2">
+                                    Shop Products <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Access Cards -->
+            <div class="container mx-auto px-4 -mt-20 relative z-10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Services Card -->
+                    <div onclick="switchView('services')"
+                        class="bg-white/90 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/50 cursor-pointer group hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div
+                                class="w-14 h-14 bg-pink-100 rounded-2xl flex items-center justify-center text-pink-600 mb-6 group-hover:scale-110 transition-transform">
+                                <i data-lucide="scissors" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Services</h3>
+                            <p class="text-gray-500 mb-4">Professional hair, nails, and spa treatments.</p>
+                            <span
+                                class="text-pink-600 font-semibold flex items-center gap-2 group-hover:gap-3 transition-all">
+                                Browse Menu <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Products Card -->
+                    <div onclick="switchView('products')"
+                        class="bg-white/90 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/50 cursor-pointer group hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative z-10">
+                            <div
+                                class="w-14 h-14 bg-sky-100 rounded-2xl flex items-center justify-center text-sky-600 mb-6 group-hover:scale-110 transition-transform">
+                                <i data-lucide="shopping-bag" class="w-7 h-7"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Beauty Shop</h3>
+                            <p class="text-gray-500 mb-4">Premium products for your daily routine.</p>
+                            <span
+                                class="text-sky-600 font-semibold flex items-center gap-2 group-hover:gap-3 transition-all">
+                                Shop Now <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVICES VIEW -->
+        <div id="view-services" class="view-section hidden max-w-[1500px] mx-auto px-4 py-8 animate-fade-in">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 bg-pink-100 rounded-xl text-pink-600">
+                        <i data-lucide="scissors" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900">Book Services</h2>
+                        <p class="text-gray-500">Professional treatments at your convenience</p>
+                    </div>
+                </div>
+            </div>
+            <div id="services-grid"
+                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                <!-- Services injected here -->
+            </div>
+        </div>
+
+        <!-- PRODUCTS VIEW -->
+        <div id="view-products" class="view-section hidden max-w-[1500px] mx-auto px-4 py-8 animate-fade-in">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 bg-sky-100 rounded-xl text-sky-600">
+                        <i data-lucide="shopping-bag" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900">Beauty Shop</h2>
+                        <p class="text-gray-500">Curated products for your daily routine</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="filterProducts('all')"
+                        class="px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300 text-sm font-medium transition">All</button>
+                    <button onclick="filterProducts('deals')"
+                        class="px-4 py-2 rounded-full bg-pink-100 text-pink-600 hover:bg-pink-200 text-sm font-medium transition">Deals</button>
+                </div>
+            </div>
+            <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+        </div>
+
+    </main>
+
+    <!-- Booking Modal -->
+    <div id="booking-modal"
+        class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm transform scale-95 transition-transform duration-300"
+            id="booking-modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-900">Contact to Book</h3>
+                <button onclick="closeBookingModal()" class="p-2 hover:bg-gray-100 rounded-full transition">
+                    <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                </button>
+            </div>
+            <p class="text-gray-500 mb-6" id="booking-service-name">Select a method to book your service.</p>
+            <div class="space-y-3">
+                <a id="booking-whatsapp" href="#"
+                    class="flex items-center justify-center gap-3 w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-green-500/20 transform hover:-translate-y-1">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i> WhatsApp
+                </a>
+                <a id="booking-call" href="#"
+                    class="flex items-center justify-center gap-3 w-full bg-sky-500 hover:bg-sky-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-sky-500/20 transform hover:-translate-y-1">
+                    <i data-lucide="phone" class="w-5 h-5"></i> Call Now
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Drawer -->
+    <div id="cart"
+        class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl z-[60] transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="h-full flex flex-col">
+            <div
+                class="p-4 bg-gradient-to-r from-sky-500 to-sky-600 text-white flex justify-between items-center shadow-md">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    <h2 class="font-bold text-lg">Your Cart</h2>
+                </div>
+                <button onclick="toggleCart()" class="p-1 hover:bg-white/20 rounded-full transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div id="cart-items" class="flex-1 p-4 overflow-y-auto space-y-4">
+                <!-- Cart items will be injected here -->
+            </div>
+            <div class="p-6 border-t bg-gray-50">
+                <div class="flex justify-between mb-4">
+                    <span class="text-gray-600">Subtotal</span>
+                    <span id="cart-total" class="font-bold text-xl text-gray-900">Ugshs 0</span>
+                </div>
+                <button
+                    class="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-pink-500/30 transition-all transform hover:-translate-y-0.5">
+                    Checkout Now
+                </button>
+                <div class="mt-4 text-center">
+                    <p class="text-xs text-gray-500 mb-1">Need assistance?</p>
+                    <a href="tel:+256702370441"
+                        class="inline-flex items-center gap-1 text-sm font-semibold text-sky-600 hover:text-sky-700">
+                        <i data-lucide="phone" class="w-3 h-3"></i> +256 702 370 441
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Contact Button -->
+    <div class="fixed bottom-24 md:bottom-8 right-8 z-40 flex flex-col items-end gap-4">
+        <!-- Contact Menu -->
+        <div id="contact-menu"
+            class="hidden bg-white rounded-2xl shadow-2xl p-4 w-64 mb-2 animate-fade-in-up origin-bottom-right">
+            <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <i data-lucide="headset" class="w-4 h-4 text-sky-500"></i> Contact Support
+            </h3>
+            <div class="space-y-2">
+                <a href="https://wa.me/256702370441"
+                    class="flex items-center gap-3 w-full bg-[#25D366] hover:bg-[#20bd5a] text-white p-3 rounded-xl transition-colors shadow-lg shadow-green-500/20">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    <span class="font-medium">WhatsApp</span>
+                </a>
+                <a href="tel:+256702370441"
+                    class="flex items-center gap-3 w-full bg-sky-500 hover:bg-sky-600 text-white p-3 rounded-xl transition-colors shadow-lg shadow-sky-500/20">
+                    <i data-lucide="phone" class="w-5 h-5"></i>
+                    <span class="font-medium">Call Now</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Toggle Button -->
+        <button onclick="toggleContact()"
+            class="group bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-full shadow-2xl hover:shadow-green-500/40 transition-all transform hover:scale-110">
+            <i data-lucide="message-circle" class="w-7 h-7"></i>
+            <span
+                class="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Chat
+                with us</span>
+        </button>
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <div
+        class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div class="grid grid-cols-3 h-16">
+            <button onclick="switchView('home')" id="mobile-nav-home"
+                class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-sky-600 transition-colors">
+                <i data-lucide="home" class="w-6 h-6 mb-1"></i>
+                <span class="text-[10px] font-medium">Home</span>
+            </button>
+            <button onclick="switchView('services')" id="mobile-nav-services"
+                class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-sky-600 transition-colors">
+                <i data-lucide="scissors" class="w-6 h-6 mb-1"></i>
+                <span class="text-[10px] font-medium">Services</span>
+            </button>
+            <button onclick="switchView('products')" id="mobile-nav-products"
+                class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-sky-600 transition-colors">
+                <i data-lucide="shopping-bag" class="w-6 h-6 mb-1"></i>
+                <span class="text-[10px] font-medium">Shop</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const cart = [];
+        let services = [];
+        let products = [];
+
+        // Fetch Data
+        async function fetchData() {
+            try {
+                const [servicesRes, productsRes] = await Promise.all([
+                    fetch('/api/services'),
+                    fetch('/api/products')
+                ]);
+                services = await servicesRes.json();
+                products = await productsRes.json();
+
+                // Re-render
+                renderServices();
+                renderProducts();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // View Management
+        function switchView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+
+            // Show selected view
+            const targetView = document.getElementById(`view-${viewName}`);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+                // Re-trigger animations
+                targetView.classList.remove('animate-fade-in');
+                void targetView.offsetWidth; // Trigger reflow
+                targetView.classList.add('animate-fade-in');
+            }
+
+            // Update Navigation State (Desktop)
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('text-sky-600');
+                btn.classList.add('text-gray-500');
+            });
+
+            // Update Desktop Nav
+            const activeBtn = document.getElementById(`nav-${viewName}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.classList.add('text-sky-600');
+                activeBtn.classList.remove('text-gray-500');
+            }
+
+            // Update Mobile Nav
+            document.querySelectorAll('#mobile-nav-home, #mobile-nav-services, #mobile-nav-products').forEach(btn => {
+                btn.classList.remove('text-sky-600');
+                btn.classList.add('text-gray-500');
+            });
+
+            const activeMobileBtn = document.getElementById(`mobile-nav-${viewName}`);
+            if (activeMobileBtn) {
+                activeMobileBtn.classList.add('text-sky-600');
+                activeMobileBtn.classList.remove('text-gray-500');
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Rendering Functions
+        function renderServices() {
+            document.getElementById('services-grid').innerHTML = services.map(s => `
+                <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300 group">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="${s.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm">${s.time}</div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg mb-2 text-gray-800 group-hover:text-pink-600 transition-colors">${s.name}</h3>
+                        <div class="flex justify-between items-center mt-4">
+                            <span class="font-bold text-lg text-gray-900">Ugshs ${s.price.toLocaleString()}</span>
+                            <button onclick="showBookingOptions('${s.name}')" class="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-pink-600 transition-colors">Book</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderProducts() {
+            document.getElementById('products-grid').innerHTML = products.map(p => `
+                <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-sky-500/10 transition-all duration-300 group flex flex-col h-full">
+                    <div class="aspect-square bg-gray-50 relative overflow-hidden">
+                        <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <button onclick="addToCart(${p.id})" class="absolute bottom-3 right-3 bg-white p-2 rounded-full shadow-lg hover:bg-sky-500 hover:text-white transition-colors transform translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col">
+                        <div class="flex items-center gap-1 mb-2">
+                            <i data-lucide="star" class="w-3 h-3 text-yellow-400 fill-current"></i>
+                            <span class="text-xs text-gray-500">${p.rating}</span>
+                        </div>
+                        <h3 class="text-sm font-semibold mb-1 text-gray-800 line-clamp-2 flex-1">${p.name}</h3>
+                        <div class="mt-3 flex items-center justify-between">
+                            <div class="text-lg font-bold text-gray-900">Ugshs ${p.price.toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Cart Logic
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            const existing = cart.find(c => c.id === id);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            updateCart();
+            toggleCart(true);
+
+            // Show feedback
+            const btn = event.currentTarget;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="check" class="w-5 h-5"></i>';
+            btn.classList.add('bg-green-500', 'text-white');
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('bg-green-500', 'text-white');
+                lucide.createIcons();
+            }, 1000);
+        }
+
+        function updateCart() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('cart-count').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-total').textContent = 'Ugshs ' + total.toLocaleString();
+
+            const cartItemsContainer = document.getElementById('cart-items');
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-64 text-gray-400">
+                        <i data-lucide="shopping-cart" class="w-16 h-16 mb-4 opacity-20"></i>
+                        <p>Your cart is empty</p>
+                        <button onclick="toggleCart(); switchView('products')" class="mt-4 text-sky-600 font-medium hover:underline">Start Shopping</button>
+                    </div>
+                `;
+            } else {
+                cartItemsContainer.innerHTML = cart.map(item => `
+                    <div class="flex gap-4 p-3 bg-white border border-gray-100 rounded-xl hover:shadow-md transition-shadow">
+                        <img src="${item.image}" class="w-20 h-20 object-cover rounded-lg bg-gray-100">
+                        <div class="flex-1 flex flex-col justify-center">
+                            <h3 class="font-semibold text-sm text-gray-900 line-clamp-1">${item.name}</h3>
+                            <p class="text-sky-600 font-bold mt-1">Ugshs ${item.price.toLocaleString()}</p>
+                            <div class="flex items-center gap-3 mt-2">
+                                <button class="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition" onclick="updateQty(${item.id}, -1)">-</button>
+                                <span class="text-sm font-medium w-4 text-center">${item.quantity}</span>
+                                <button class="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition" onclick="updateQty(${item.id}, 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            lucide.createIcons();
+        }
+
+        function updateQty(id, change) {
+            const itemIndex = cart.findIndex(c => c.id === id);
+            if (itemIndex > -1) {
+                cart[itemIndex].quantity += change;
+                if (cart[itemIndex].quantity <= 0) {
+                    cart.splice(itemIndex, 1);
+                }
+                updateCart();
+            }
+        }
+
+        function toggleCart(show) {
+            const cart = document.getElementById('cart');
+            if (show === true) cart.classList.remove('translate-x-full');
+            else if (show === false) cart.classList.add('translate-x-full');
+            else cart.classList.toggle('translate-x-full');
+        }
+
+        function toggleContact() {
+            document.getElementById('contact-menu').classList.toggle('hidden');
+        }
+
+        function filterProducts(type) {
+            if (type === 'deals') {
+                alert('Filtering for special deals... (Demo)');
+            } else {
+                // Reset filter
+            }
+        }
+
+        function showBookingOptions(serviceName) {
+            const modal = document.getElementById('booking-modal');
+            const content = document.getElementById('booking-modal-content');
+            const serviceText = document.getElementById('booking-service-name');
+            const waBtn = document.getElementById('booking-whatsapp');
+            const callBtn = document.getElementById('booking-call');
+
+            serviceText.textContent = `Booking: ${serviceName}`;
+            waBtn.href = `https://wa.me/256702370441?text=Hello, I would like to book ${serviceName}`;
+            callBtn.href = `tel:+256702370441`;
+
+            modal.classList.remove('hidden');
+            // Small delay for animation
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            const content = document.getElementById('booking-modal-content');
+
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Initialize
+        fetchData();
+        lucide.createIcons();
+        switchView('home');
+    </script>
+</body>
+
+</html>
