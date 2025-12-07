@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina Beauty - Premium Beauty Services & Products</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase SDKs (Compat for simple HTML usage) -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics-compat.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animations */
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fade-in-up 0.8s ease-out forwards;
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .animate-fade-in {
+            animation: fade-in 0.5s ease-out forwards;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.05);
+            }
+        }
+
+        .animate-pulse-glow {
+            animation: pulse-glow 3s infinite;
+        }
+
+        @keyframes kenburns {
+            0% {
+                transform: scale(1);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            40% {
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .animate-kenburns {
+            animation: kenburns 15s infinite;
+        }
+
+        .animation-delay-100 {
+            animation-delay: 0.1s;
+        }
+
+        .animation-delay-200 {
+            animation-delay: 0.2s;
+        }
+
+        .animation-delay-300 {
+            animation-delay: 0.3s;
+        }
+
+        .nav-btn.active {
+            color: #0284c7;
+        }
+
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+
+    <!-- Header -->
+    <header
+        class="fixed w-full z-50 transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="switchView('home')">
+                <div class="bg-gradient-to-r from-sky-400 to-pink-500 p-2 rounded-xl shadow-lg shadow-pink-500/20">
+                    <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1
+                        class="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 hidden sm:block">
+                        Lumina<span class="text-sky-500">B</span>
+                    </h1>
+                    <h1
+                        class="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 sm:hidden">
+                        L<span class="text-sky-500">B</span>
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-md mx-4">
+                <div class="relative group">
+                    <input type="text" placeholder="Search products & services..." oninput="performSearch(this.value)"
+                        class="w-full bg-gray-100 border-transparent focus:bg-white focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 rounded-full py-2 pl-10 pr-4 transition-all duration-300 text-sm outline-none">
+                    <i data-lucide="search"
+                        class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-sky-500 transition-colors"></i>
+                </div>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8">
+                <button onclick="switchView('home')" id="nav-home"
+                    class="nav-btn text-sm font-bold text-gray-500 hover:text-sky-600 transition-colors uppercase tracking-wide">Home</button>
+                <button onclick="switchView('services')" id="nav-services"
+                    class="nav-btn text-sm font-bold text-gray-500 hover:text-sky-600 transition-colors uppercase tracking-wide">Services</button>
+                <button onclick="switchView('products')" id="nav-products"
+                    class="nav-btn text-sm font-bold text-gray-500 hover:text-sky-600 transition-colors uppercase tracking-wide">Shop</button>
+                <button onclick="switchView('account')" id="nav-account"
+                    class="nav-btn text-sm font-bold text-gray-500 hover:text-sky-600 transition-colors uppercase tracking-wide">My
+                    Account</button>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <button onclick="toggleCart()"
+                    class="relative p-2 hover:bg-gray-100 rounded-full transition-colors group">
+                    <i data-lucide="shopping-cart"
+                        class="w-6 h-6 text-gray-600 group-hover:text-sky-600 transition-colors"></i>
+                    <span id="cart-count"
+                        class="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md">0</span>
+                </button>
+                <button onclick="switchView('login')" id="auth-btn"
+                    class="hidden md:flex bg-gray-900 text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    Sign In
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-24 md:pb-12">
+
+        <!-- HOME VIEW -->
+        <div id="view-home" class="view-section animate-fade-in">
+            <!-- Hero Section -->
+            <div class="relative h-[500px] overflow-hidden mb-12 group">
+                <div class="absolute inset-0 w-full h-full bg-gray-900">
+                    <img src="https://frohub.com/wp-content/uploads/2024/11/brown-fulani-braids.jpg"
+                        class="absolute inset-0 w-full h-full object-cover opacity-0 animate-kenburns"
+                        style="animation-delay: 0s;">
+                    <img src="https://media.istockphoto.com/id/1973193559/photo/smiling-barber-trimming-a-customers-hair-in-a-busy-barber-shop.jpg?s=612x612&w=0&k=20&c=K6zK0el3L59wPbfl2RM4veJvo8M9tBtqrNHdS0S4gk8="
+                        class="absolute inset-0 w-full h-full object-cover opacity-0 animate-kenburns"
+                        style="animation-delay: 5s;">
+                    <img src="https://images.unsplash.com/photo-1580870069867-74c57ee1bb07?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2tpbiUyMGNhcmUlMjBwcm9kdWN0c3xlbnwwfHwwfHx8MA%3D%3D"
+                        class="absolute inset-0 w-full h-full object-cover opacity-0 animate-kenburns"
+                        style="animation-delay: 10s;">
+                </div>
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent flex items-center">
+                    <div class="container mx-auto px-6">
+                        <div class="max-w-2xl text-white space-y-6">
+                            <div
+                                class="inline-block px-4 py-1 rounded-full border border-pink-500/50 bg-pink-500/10 backdrop-blur-md text-pink-300 text-sm font-medium mb-4 animate-fade-in-up">
+                                ✨ The Future of Beauty is Here
+                            </div>
+                            <h1
+                                class="text-5xl md:text-7xl font-black leading-tight tracking-tight animate-fade-in-up animation-delay-100">
+                                Reveal Your <br>
+                                <span
+                                    class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-sky-400 animate-pulse-glow">Inner
+                                    Glow</span>
+                            </h1>
+                            <p
+                                class="text-xl text-gray-300 leading-relaxed max-w-lg animate-fade-in-up animation-delay-200">
+                                Experience premium beauty services delivered to your doorstep. Professional, reliable,
+                                and tailored just for you.
+                            </p>
+                            <!-- Buttons removed as per request -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Access Cards -->
+            <div class="container mx-auto px-4 -mt-20 relative z-10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+                    <div onclick="switchView('services')"
+                        class="relative h-64 rounded-3xl shadow-2xl overflow-hidden cursor-pointer group hover:-translate-y-2 transition-all duration-300 border border-gray-100 animate-fade-in-up">
+                        <div class="absolute inset-0">
+                            <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/40 to-transparent">
+                            </div>
+                        </div>
+                        <div class="relative z-10 p-8 h-full flex flex-col justify-end text-white">
+                            <div
+                                class="mb-auto w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform">
+                                <i data-lucide="scissors" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-2">Services</h3>
+                            <p class="text-gray-200 mb-4 text-sm font-medium">Professional hair, nails, and spa
+                                treatments.</p>
+                            <span
+                                class="text-pink-400 font-bold flex items-center gap-2 group-hover:gap-3 transition-all text-sm uppercase tracking-wider">Browse
+                                Menu <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                        </div>
+                    </div>
+                    <div onclick="switchView('products')"
+                        class="relative h-64 rounded-3xl shadow-2xl overflow-hidden cursor-pointer group hover:-translate-y-2 transition-all duration-300 border border-gray-100 animate-fade-in-up animation-delay-100">
+                        <div class="absolute inset-0">
+                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdd403348?w=800"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/40 to-transparent">
+                            </div>
+                        </div>
+                        <div class="relative z-10 p-8 h-full flex flex-col justify-end text-white">
+                            <div
+                                class="mb-auto w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform">
+                                <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-2">Beauty Shop</h3>
+                            <p class="text-gray-200 mb-4 text-sm font-medium">Premium products for your daily routine.
+                            </p>
+                            <span
+                                class="text-sky-400 font-bold flex items-center gap-2 group-hover:gap-3 transition-all text-sm uppercase tracking-wider">Shop
+                                Now <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVICES VIEW -->
+        <div id="view-services" class="view-section hidden max-w-[1500px] mx-auto px-4 py-8 animate-fade-in">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 bg-pink-100 rounded-xl text-pink-600"><i data-lucide="scissors" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900">Book Services</h2>
+                        <p class="text-gray-500">Professional treatments at your convenience</p>
+                    </div>
+                </div>
+            </div>
+            <div id="services-grid"
+                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+        </div>
+
+        <!-- PRODUCTS VIEW -->
+        <div id="view-products" class="view-section hidden max-w-[1500px] mx-auto px-4 py-8 animate-fade-in">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 bg-sky-100 rounded-xl text-sky-600"><i data-lucide="shopping-bag"
+                            class="w-8 h-8"></i></div>
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900">Beauty Shop</h2>
+                        <p class="text-gray-500">Select a category to view products</p>
+                    </div>
+                </div>
+            </div>
+            <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+        </div>
+
+        <!-- CATEGORY DETAILS VIEW -->
+        <div id="view-category" class="view-section hidden max-w-[1500px] mx-auto px-4 py-8 animate-fade-in">
+            <button onclick="switchView('products')"
+                class="mb-6 flex items-center gap-2 text-gray-500 hover:text-gray-900 font-bold transition-colors">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i> Back to Shop
+            </button>
+            <div class="mb-8 relative h-48 md:h-64 rounded-3xl overflow-hidden shadow-lg group">
+                <img id="category-hero-img" src=""
+                    class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <h2 id="category-title"
+                        class="text-4xl md:text-5xl font-black text-white tracking-tight shadow-black/50 drop-shadow-lg">
+                        Category Name
+                    </h2>
+                </div>
+            </div>
+            <div id="category-products-grid"
+                class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+        </div>
+
+        <!-- SEARCH RESULTS VIEW -->
+        <div id="view-search" class="view-section hidden max-w-[1500px] mx-auto px-4 py-8 animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-900">Search Results</h2>
+                <p class="text-gray-500" id="search-query-display">Showing results for "..."</p>
+            </div>
+            <div id="search-results-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            </div>
+        </div>
+
+        <!-- AUTH: LOGIN VIEW -->
+        <div id="view-login" class="view-section hidden max-w-md mx-auto px-4 py-12 animate-fade-in">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+                <p class="text-gray-500 mb-8">Sign in to access your account</p>
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label><input
+                            type="email" id="login-email" required
+                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all">
+                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Password</label><input
+                            type="password" id="login-password" required
+                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-gray-900 text-white py-3.5 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">Sign
+                        In</button>
+                </form>
+                <p class="mt-6 text-center text-gray-600">Don't have an account? <button
+                        onclick="switchView('register')"
+                        class="text-sky-600 font-bold hover:underline">Register</button></p>
+            </div>
+        </div>
+
+        <!-- AUTH: REGISTER VIEW -->
+        <div id="view-register" class="view-section hidden max-w-md mx-auto px-4 py-12 animate-fade-in">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
+                <p class="text-gray-500 mb-8">Join Lumina Beauty today</p>
+                <form onsubmit="handleRegister(event)" class="space-y-4">
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label><input type="text"
+                            id="register-name" required
+                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all">
+                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label><input
+                            type="email" id="register-email" required
+                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all">
+                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Password</label><input
+                            type="password" id="register-password" required
+                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-gradient-to-r from-sky-500 to-sky-600 text-white py-3.5 rounded-xl font-bold hover:from-sky-600 hover:to-sky-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">Create
+                        Account</button>
+                </form>
+                <p class="mt-6 text-center text-gray-600">Already have an account? <button onclick="switchView('login')"
+                        class="text-sky-600 font-bold hover:underline">Sign In</button></p>
+            </div>
+        </div>
+
+        <!-- AUTH: ACCOUNT VIEW -->
+        <div id="view-account" class="view-section hidden max-w-2xl mx-auto px-4 py-12 animate-fade-in">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+                <div class="flex items-center gap-6 mb-8">
+                    <div
+                        class="w-20 h-20 bg-gray-200 rounded-full overflow-hidden flex items-center justify-center text-gray-400">
+                        <i data-lucide="user" class="w-10 h-10"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900" id="account-name">Welcome</h2>
+                        <p class="text-gray-500" id="account-email">Sign in to view orders</p>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Admin Controls</h3>
+                <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 mb-8">
+                    <p class="text-sm text-gray-600 mb-3">Database Management</p>
+                    <button id="seed-btn" onclick="seedDatabase()"
+                        class="bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-sky-700 transition">
+                        Reset / Seed Database Data
+                    </button>
+                    <p class="text-xs text-gray-400 mt-2">Click this if products/services are missing.</p>
+                </div>
+
+                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl mb-4">
+                    <span class="font-bold text-gray-700">Account Status</span>
+                    <span class="text-green-600 font-bold text-sm bg-green-100 px-3 py-1 rounded-full">Active</span>
+                </div>
+
+                <button onclick="handleLogout()"
+                    class="w-full border border-gray-300 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors">
+                    Log Out
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+
+    <!-- Modals & Overlay Elements -->
+    <div id="booking-modal"
+        class="fixed inset-0 bg-black/50 z-[70] hidden flex items-center justify-center p-4 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm transform scale-95 transition-transform duration-300"
+            id="booking-modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-900">Contact to Book</h3>
+                <button onclick="closeBookingModal()" class="p-2 hover:bg-gray-100 rounded-full transition"><i
+                        data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+            </div>
+            <p class="text-gray-500 mb-6" id="booking-service-name">Select a method to book.</p>
+            <div class="space-y-3">
+                <a id="booking-whatsapp" href="#"
+                    class="flex items-center justify-center gap-3 w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-green-500/20 transform hover:-translate-y-1"><i
+                        data-lucide="message-circle" class="w-5 h-5"></i> WhatsApp</a>
+                <a id="booking-call" href="#"
+                    class="flex items-center justify-center gap-3 w-full bg-sky-500 hover:bg-sky-600 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-sky-500/20 transform hover:-translate-y-1"><i
+                        data-lucide="phone" class="w-5 h-5"></i> Call Now</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="cart"
+        class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl z-[60] transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="h-full flex flex-col">
+            <div
+                class="p-4 bg-gradient-to-r from-sky-500 to-sky-600 text-white flex justify-between items-center shadow-md">
+                <div class="flex items-center gap-2"><i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    <h2 class="font-bold text-lg">Your Cart</h2>
+                </div>
+                <button onclick="toggleCart()" class="p-1 hover:bg-white/20 rounded-full transition"><i data-lucide="x"
+                        class="w-6 h-6"></i></button>
+            </div>
+            <div id="cart-items" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
+            <div class="p-6 border-t bg-gray-50">
+                <div class="flex justify-between mb-4"><span class="text-gray-600">Subtotal</span><span id="cart-total"
+                        class="font-bold text-xl text-gray-900">Ugshs 0</span></div>
+                <button onclick="checkout()"
+                    class="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-pink-500/30 transition-all transform hover:-translate-y-0.5">Make
+                    Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 pb-safe">
+        <div class="grid grid-cols-4 h-16">
+            <button onclick="switchView('home')" id="mobile-nav-home"
+                class="nav-btn active flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-sky-600"><i
+                    data-lucide="home" class="w-6 h-6 mb-1"></i><span
+                    class="text-[10px] font-medium">Home</span></button>
+            <button onclick="switchView('services')" id="mobile-nav-services"
+                class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-sky-600"><i
+                    data-lucide="scissors" class="w-6 h-6 mb-1"></i><span
+                    class="text-[10px] font-medium">Services</span></button>
+            <button onclick="switchView('products')" id="mobile-nav-products"
+                class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-sky-600"><i
+                    data-lucide="shopping-bag" class="w-6 h-6 mb-1"></i><span
+                    class="text-[10px] font-medium">Shop</span></button>
+            <button onclick="switchView('login')" id="mobile-nav-file"
+                class="nav-btn flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-sky-600"><i
+                    data-lucide="user" class="w-6 h-6 mb-1"></i><span class="text-[10px] font-medium"
+                    id="mobile-auth-text">Sign In</span></button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (Compat) -->
+
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCT9uBcOjqV9agZojQmGsAA-_xjPwHH4GY",
+            authDomain: "lumina-beauty-7f6d9.firebaseapp.com",
+            projectId: "lumina-beauty-7f6d9",
+            storageBucket: "lumina-beauty-7f6d9.firebasestorage.app",
+            messagingSenderId: "23723763136",
+            appId: "1:23723763136:web:077014a601f5b613c4d425",
+            measurementId: "G-L2RKWETQYM"
+        };
+
+        // Initialize Firebase
+        let db, auth, analytics;
+
+        try {
+            if (typeof firebase !== 'undefined') {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                auth = firebase.auth();
+                analytics = firebase.analytics();
+                console.log("Firebase initialized successfully");
+            } else {
+                throw new Error("Firebase SDK not loaded");
+            }
+        } catch (e) {
+            console.warn("Firebase initialization failed. Running in OFFLINE/DEMO mode.", e);
+
+            // Mock DB for offline mode
+            db = {
+                collection: (name) => ({
+                    get: async () => ({ empty: true, docs: [] }),
+                    doc: () => ({ set: async () => { } })
+                }),
+                batch: () => ({
+                    set: () => { },
+                    commit: async () => { }
+                })
+            };
+
+            // Mock Auth for offline mode
+            auth = {
+                currentUser: null,
+                onAuthStateChanged: (cb) => { cb(null); return () => { }; },
+                signInWithEmailAndPassword: async () => { throw new Error("Offline Mode: Sign in disabled"); },
+                createUserWithEmailAndPassword: async () => { throw new Error("Offline Mode: Sign up disabled"); },
+                signOut: async () => { console.log("Signed out (offline)"); }
+            };
+
+            analytics = { logEvent: () => { } };
+        }
+
+
+        // Global Variables
+        let products = [];
+        let services = [];
+        const cart = [];
+        let currentView = 'home';
+
+        // Data Generation for SEEDING
+        const categories = ["Perfumes, Colognes & Oils", "Skin Care", "Wigs & Hair", "Makeup"];
+        const categoryImages = {
+            "Perfumes, Colognes & Oils": "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=800",
+            "Skin Care": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800",
+            "Wigs & Hair": "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=800",
+            "Makeup": "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800"
+        };
+
+        const servicesTemplate = [
+            {
+                id: 1, name: "Braiding", price: 150000, time: "4-6 hrs", image:
+                    "https://images.unsplash.com/photo-1605218427360-36390f8584b0?w=400"
+            },
+            {
+                id: 2, name: "Skin Care", price: 80000, time: "1 hr", image:
+                    "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400"
+            },
+            {
+                id: 3, name: "Pedicure", price: 45000, time: "1.5 hrs", image:
+                    "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=400"
+            },
+            {
+                id: 4, name: "Manicure", price: 35000, time: "1 hr", image:
+                    "https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=400"
+            },
+            {
+                id: 5, name: "Massage", price: 120000, time: "1.5 hrs", image:
+                    "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400"
+            },
+            {
+                id: 6, name: "Shaving Hair", price: 20000, time: "45 mins", image:
+                    "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400"
+            },
+            {
+                id: 7, name: "Dermatology", price: 150000, time: "Consultation", image:
+                    "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400"
+            },
+            {
+                id: 8, name: "Weight Loss Program", price: 300000, time: "Monthly", image:
+                    "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400"
+            }
+        ];
+
+        const productsTemplate = [];
+        // Generate products template
+        (function () {
+            const brandNames = ["Lumina", "Velvet", "Aura", "Royal", "Pure", "Silk", "Glow", "Noir", "Essence", "Vivid"];
+            const images = {
+                "Perfumes, Colognes & Oils": [
+                    "https://images.unsplash.com/photo-1541643600914-78b084683601?w=400",
+                    "https://images.unsplash.com/photo-1594035910387-fea4779426e9?w=400",
+                    "https://images.unsplash.com/photo-1523293188086-b5e91d940fe6?w=400",
+                    "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400"
+                ],
+                "Skin Care": [
+                    "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400",
+                    "https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?w=400",
+                    "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400",
+                    "https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?w=400"
+                ],
+                "Wigs & Hair": [
+                    "https://images.unsplash.com/photo-1560869713-7d0a29430803?w=400",
+                    "https://images.unsplash.com/photo-1595476103518-3c9780b6a22c?w=400",
+                    "https://images.unsplash.com/photo-1636284646733-4f93c5c11030?w=400",
+                    "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400"
+                ],
+                "Makeup": [
+                    "https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=400",
+                    "https://images.unsplash.com/photo-1586495777744-4413f21062dc?w=400",
+                    "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400",
+                    "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400"
+                ]
+            };
+
+            categories.forEach((cat, catIndex) => {
+                const catImages = images[cat];
+                for (let i = 1; i <= 100; i++) {
+                    const brand = brandNames[Math.floor(Math.random() * brandNames.length)];
+                    let name, basePrice;
+
+                    if (cat === "Perfumes, Colognes & Oils") {
+                        const types = ["Eau de Parfum", "Mist", "Cologne", "Essential Oil", "Musk", "Extract"];
+                        const adjectives = ["Midnight", "Rose", "Ocean", "Wood", "Vanilla", "Citrus", "Gold", "Spice"];
+                        name = `${brand} ${adjectives[Math.floor(Math.random() * adjectives.length)]} ${types[Math.floor(Math.random() * types.length)]}`;
+                        basePrice = 45000;
+                    } else if (cat === "Skin Care") {
+                        const types = ["Cleanser", "Serum", "Moisturizer", "Toner", "Sunscreen", "Face Mask", "Scrub"];
+                        const adjectives = ["Hydrating", "Brightening", "Soothing", "Clear", "Anti-Aging", "Radiance", "Gentle"];
+                        name = `${brand} ${adjectives[Math.floor(Math.random() * adjectives.length)]} ${types[Math.floor(Math.random() * types.length)]}`;
+                        basePrice = 35000;
+                    } else if (cat === "Wigs & Hair") {
+                        const origins = ["Brazilian", "Peruvian", "Malaysian", "Indian"];
+                        const styles = ["Body Wave", "Bone Straight", "Deep Wave", "Kinky Curly", "Bob Cut", "Water Wave"];
+                        const lengths = ["10\"", "16\"", "20\"", "24\"", "30\""];
+                        name = `${origins[Math.floor(Math.random() * origins.length)]} ${styles[Math.floor(Math.random() * styles.length)]} ${lengths[Math.floor(Math.random() * lengths.length)]}`;
+                        basePrice = 150000;
+                    } else { // Makeup
+                        const types = ["Matte Lipstick", "Foundation", "Eyeshadow Palette", "Mascara", "Blush", "Highlighter", "Setting Spray"];
+                        const adjectives = ["Ruby", "Velvet", "Nude", "Liquid", "Long-Wear", "Glow", "Define", "Bold"];
+                        name = `${brand} ${adjectives[Math.floor(Math.random() * adjectives.length)]} ${types[Math.floor(Math.random() * types.length)]}`;
+                        basePrice = 25000;
+                    }
+
+                    productsTemplate.push({
+                        id: (catIndex + 1) * 1000 + i,
+                        category: cat,
+                        name: name,
+                        price: basePrice + (Math.floor(Math.random() * 20) * 1000),
+                        rating: (Math.random() * (5.0 - 3.8) + 3.8).toFixed(1),
+                        image: catImages[i % catImages.length]
+                    });
+                }
+            });
+        })();
+
+        // --- CORE FUNCTIONS ---
+        async function loadData() {
+            try {
+                const servicesSnapshot = await db.collection('services').get();
+                if (!servicesSnapshot.empty) {
+                    services = servicesSnapshot.docs.map(doc => doc.data());
+                }
+
+                const productsSnapshot = await db.collection('products').get();
+                if (!productsSnapshot.empty) {
+                    products = productsSnapshot.docs.map(doc => doc.data());
+                } else {
+                    console.warn("Database empty. Using local template data as fallback.");
+                    products = productsTemplate;
+                    // Optional: Auto-seed in background?
+                    // seedDatabase(); 
+                }
+
+                renderServices();
+                renderProducts();
+            } catch (error) {
+                console.error("Data load failed:", error);
+                // Fallback on error too
+                if (products.length === 0) products = productsTemplate;
+                renderServices();
+                renderProducts();
+            }
+        }
+
+        auth.onAuthStateChanged(user => {
+            const authBtn = document.getElementById('auth-btn');
+            const mobileAuthBtn = document.getElementById('mobile-nav-file');
+            const mobileAuthText = document.getElementById('mobile-auth-text');
+
+            if (user) {
+                authBtn.textContent = 'Account';
+                authBtn.onclick = () => switchView('account');
+
+                if (mobileAuthBtn) {
+                    mobileAuthBtn.classList.remove('hidden');
+                    mobileAuthBtn.onclick = () => switchView('account');
+                    mobileAuthBtn.id = 'mobile-nav-account'; // change ID for highlighting
+                }
+                if (mobileAuthText) mobileAuthText.textContent = 'Account';
+
+                document.getElementById('account-email').textContent = user.email;
+                if (user.displayName) document.getElementById('account-name').textContent = user.displayName;
+            } else {
+                authBtn.textContent = 'Sign In';
+                authBtn.onclick = () => switchView('login');
+
+                if (mobileAuthBtn) {
+                    mobileAuthBtn.onclick = () => switchView('login');
+                    mobileAuthBtn.id = 'mobile-nav-file'; // reset ID
+                }
+                // If ID was changed previously, we need to find it by the new ID
+                const accBtn = document.getElementById('mobile-nav-account');
+                if (accBtn) {
+                    accBtn.onclick = () => switchView('login');
+                    accBtn.id = 'mobile-nav-file';
+                    accBtn.querySelector('span').textContent = 'Sign In';
+                }
+
+                if (mobileAuthText) mobileAuthText.textContent = 'Sign In';
+            }
+        });
+
+        async function seedDatabase() {
+            console.log("Seed button clicked.");
+            // if (!confirm("Overwrite database with default data? This cannot be undone.")) return;
+
+            const btn = document.getElementById('seed-btn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = "Seeding... (Please Wait)";
+            }
+
+            try {
+                console.log("Starting database seed...");
+
+                const batch = db.batch();
+
+                servicesTemplate.forEach(s => {
+                    const ref = db.collection('services').doc(String(s.id));
+                    batch.set(ref, s);
+                });
+
+                productsTemplate.forEach(p => {
+                    const ref = db.collection('products').doc(String(p.id));
+                    batch.set(ref, p);
+                });
+
+                console.log("Committing batch write to Firebase...");
+                await batch.commit();
+
+                console.log("Seed Successful!");
+                alert("Database Seeded Successfully! The page will now reload.");
+                location.reload();
+            } catch (e) {
+                console.error(e);
+                console.log("Seed Error: " + e.message);
+                alert("Error seeding database: " + e.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "Reset / Seed Database Data";
+                }
+            }
+        }
+
+        // --- UI FUNCTIONS ---
+
+        function switchView(viewName) {
+            currentView = viewName;
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`view-${viewName}`);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.remove('animate-fade-in');
+                void target.offsetWidth;
+                target.classList.add('animate-fade-in');
+            }
+
+            // Updates Navs
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('text-sky-600', 'active');
+                b.classList.add('text-gray-500');
+            });
+            const active = document.getElementById(`nav-${viewName}`);
+            if (active) { active.classList.add('text-sky-600', 'active'); active.classList.remove('text-gray-500'); }
+
+            // Mobile Nav
+            document.querySelectorAll('[id^="mobile-nav-"]').forEach(b => b.classList.remove('text-sky-600'));
+            const mobileActive = document.getElementById(`mobile-nav-${viewName}`);
+            if (mobileActive) mobileActive.classList.add('text-sky-600');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderServices() {
+            const container = document.getElementById('services-grid');
+            if (services.length === 0) {
+                const isUserLoggedIn = auth.currentUser;
+                const actionBtn = isUserLoggedIn
+                    ? `<button onclick="switchView('account')"
+            class="mt-4 bg-sky-600 text-white px-6 py-2 rounded-full font-bold hover:bg-sky-700 transition">Go to
+            Account to Seed Data</button>`
+                    : `<button onclick="switchView('login')"
+            class="mt-4 bg-gray-900 text-white px-6 py-2 rounded-full font-bold hover:bg-gray-800 transition">Sign In to
+            Seed Data</button>`;
+
+                container.innerHTML = `
+        <div
+            class="col-span-full flex flex-col items-center justify-center text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <i data-lucide="database" class="w-8 h-8 text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900">Database Empty</h3>
+            <p class="text-gray-500 mt-2 max-w-md">There are no services loaded from Firebase. You can seed the database
+                with default data from the Account section.</p>
+            ${actionBtn}
+        </div>`;
+                lucide.createIcons();
+                return;
+            }
+            container.innerHTML = services.map(s => `
+        <div
+            class="bg-white rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300 group">
+            <div class="relative h-48 overflow-hidden">
+                <img src="${s.image}"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                <div
+                    class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                    ${s.time}</div>
+            </div>
+            <div class="p-5">
+                <h3 class="font-bold text-lg mb-2 text-gray-800 group-hover:text-pink-600 transition-colors">${s.name}
+                </h3>
+                <div class="flex justify-between items-center mt-4">
+                    <span class="font-bold text-lg text-gray-900">Ugshs ${s.price.toLocaleString()}</span>
+                    <button onclick="showBookingOptions('${s.name}')"
+                        class="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-pink-600 transition-colors">Book</button>
+                </div>
+            </div>
+        </div>
+        `).join('');
+        }
+
+        function renderProducts() {
+            console.log("Rendering products. Total count:", products.length);
+            const container = document.getElementById('products-grid');
+            if (products.length === 0) {
+                const isUserLoggedIn = auth.currentUser;
+                const actionBtn = isUserLoggedIn
+                    ? `<button onclick="switchView('account')"
+            class="mt-4 bg-sky-600 text-white px-6 py-2 rounded-full font-bold hover:bg-sky-700 transition">Go to
+            Account to Seed Data</button>`
+                    : `<button onclick="switchView('login')"
+            class="mt-4 bg-gray-900 text-white px-6 py-2 rounded-full font-bold hover:bg-gray-800 transition">Sign In to
+            Seed Data</button>`;
+
+                container.innerHTML = `
+        <div
+            class="col-span-full flex flex-col items-center justify-center text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <i data-lucide="database" class="w-8 h-8 text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900">Database Empty</h3>
+            <p class="text-gray-500 mt-2 max-w-md">There are no products loaded from Firebase. You can seed the database
+                with default data from the Account section.</p>
+            ${actionBtn}
+        </div>`;
+                container.className = ''; // Remove space-y-6 when empty to center content
+                lucide.createIcons();
+                return;
+            }
+            container.innerHTML = '';
+            container.className = 'grid grid-cols-1 md:grid-cols-2 gap-8';
+
+            const uniqueCats = [...new Set(products.map(p => p.category))];
+            uniqueCats.forEach((category, index) => {
+                const categoryProducts = products.filter(p => p.category === category);
+                const bgImage = categoryImages[category] || "https://images.unsplash.com/photo-1596462502278-27bfdd403348?w=800";
+
+                const card = document.createElement('div');
+                card.className = 'relative h-64 rounded-3xl overflow-hidden cursor-pointer group shadow-lg';
+                card.onclick = () => openCategoryPage(category);
+
+                card.innerHTML = `
+                    <div class="absolute inset-0 bg-gray-900">
+                        <img src="${bgImage}" class="w-full h-full object-cover opacity-70 group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                     <div class="absolute inset-0 flex flex-col justify-end p-8 z-10">
+                        <h3 class="text-3xl font-black text-white mb-2 shadow-black/50 drop-shadow-lg">${category}</h3>
+                         <div class="text-white/90 text-sm font-medium backdrop-blur-md bg-white/20 inline-block px-3 py-1 rounded-full border border-white/20 self-start">
+                             ${categoryProducts.length} Products
+                         </div>
+                     </div>
+                 `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function openCategoryPage(categoryName) {
+            const catProducts = products.filter(p => p.category === categoryName);
+            const grid = document.getElementById('category-products-grid');
+            const title = document.getElementById('category-title');
+            const img = document.getElementById('category-hero-img');
+
+            title.textContent = categoryName;
+            img.src = categoryImages[categoryName] || "https://images.unsplash.com/photo-1596462502278-27bfdd403348?w=800";
+
+            grid.innerHTML = catProducts.map(p => `
+                <div class="bg-gray-50 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 group flex flex-col h-full border border-gray-200 relative">
+                    <div class="aspect-square bg-white relative overflow-hidden">
+                        <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm z-10">
+                             <div class="flex items-center gap-1"><i data-lucide="star" class="w-3 h-3 text-yellow-400 fill-current"></i> ${p.rating}</div>
+                        </div>
+                         <div class="absolute bottom-2 right-2 flex flex-col gap-2 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                            <button onclick="addToCart(${p.id}); event.stopPropagation();" class="bg-white p-2 rounded-full shadow-md hover:bg-sky-500 hover:text-white transition-colors"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col">
+                        <h3 class="text-sm font-bold text-gray-900 line-clamp-2 mb-2 flex-1">${p.name}</h3>
+                        <div class="mt-auto">
+                            <div class="text-lg font-bold text-gray-900 mb-3">Ugshs ${p.price.toLocaleString()}</div>
+                            <button onclick="addToCartAndCheckout(${p.id}); event.stopPropagation();" class="w-full py-2.5 bg-gray-900 text-white text-sm font-bold rounded-xl hover:bg-gray-800 transition-colors shadow-lg shadow-gray-900/10">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            switchView('category');
+            lucide.createIcons();
+        }
+
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            const existing = cart.find(c => c.id === id);
+            if (existing) existing.quantity++;
+            else cart.push({ ...product, quantity: 1 });
+            updateCart();
+            toggleCart(true);
+        }
+
+        function updateCart() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('cart-count').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-total').textContent = 'Ugshs ' + total.toLocaleString();
+
+            const container = document.getElementById('cart-items');
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="flex flex-col items-center justify-center h-64 text-gray-400"><i
+                data-lucide="shopping-cart" class="w-16 h-16 mb-4 opacity-20"></i>
+            <p>Cart Empty</p>
+        </div>`;
+            } else {
+                container.innerHTML = cart.map(item => `
+        <div class="flex gap-4 p-3 bg-white border border-gray-100 rounded-xl">
+            <img src="${item.image}" class="w-16 h-16 object-cover rounded-lg">
+            <div class="flex-1">
+                <h3 class="font-bold text-sm line-clamp-1">${item.name}</h3>
+                <p class="text-sky-600 font-bold text-xs mt-1">Ugshs ${item.price.toLocaleString()}</p>
+                <div class="flex items-center gap-3 mt-1">
+                    <button onclick="updateQty(${item.id}, -1)" class="w-6 h-6 bg-gray-100 rounded-full">-</button>
+                    <span class="text-xs font-bold">${item.quantity}</span>
+                    <button onclick="updateQty(${item.id}, 1)" class="w-6 h-6 bg-gray-100 rounded-full">+</button>
+                </div>
+            </div>
+        </div>
+        `).join('');
+            }
+            lucide.createIcons();
+        }
+
+        function updateQty(id, chg) {
+            const idx = cart.findIndex(c => c.id === id);
+            if (idx > -1) {
+                cart[idx].quantity += chg;
+                if (cart[idx].quantity <= 0) cart.splice(idx, 1); updateCart();
+            }
+        }
+
+        function toggleCart(show) {
+            const el = document.getElementById('cart');
+            if (show === true) {
+                el.classList.remove('translate-x-full');
+            } else if (show === false) {
+                el.classList.add('translate-x-full');
+            } else {
+                el.classList.toggle('translate-x-full');
+            }
+        }
+        function checkout() {
+            if (cart.length === 0) return alert("Cart empty"); let msg = "Hello! I'd like to buy:\n";
+            cart.forEach(i => msg += `- ${i.name} x${i.quantity}\n`);
+            msg += `\nTotal: ${document.getElementById('cart-total').textContent}`;
+            window.open(`https://wa.me/256702370441?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function addToCartAndCheckout(id) {
+            addToCart(id);
+            setTimeout(checkout, 500);
+        }
+
+
+
+        // ERROR HANDLER
+        function getFriendlyErrorMessage(error) {
+            console.error(error);
+            const code = error.code;
+            if (code === 'auth/operation-not-allowed') {
+                return `Email/Password login is currently DISABLED. 
+Please go to the Firebase Console > Authentication > Sign-in method, select 'Email/Password', enable it, and click Save.`;
+            }
+            if (code === 'auth/network-request-failed') {
+                return `Network Error. 
+If you are running this from a file (file://), try using a local server or checking your internet connection.`;
+            }
+            if (code === 'auth/email-already-in-use') {
+                return "This email is already registered. Please Login instead.";
+            }
+            if (code === 'auth/weak-password') {
+                return "Password is too weak. Please use at least 6 characters.";
+            }
+            if (code === 'auth/user-not-found') {
+                return "No account found with this email. Please Register first.";
+            }
+            if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+                return "Invalid email or password.";
+            }
+            if (code === 'auth/invalid-email') {
+                return "Please enter a valid email address.";
+            }
+            return "Error: " + error.message;
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            console.log("Login button clicked.");
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            if (!email || !password) return alert("Please fill in all fields");
+
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "Signing in... (Please wait)";
+            submitBtn.disabled = true;
+
+            try {
+                console.log("Sending login request to Firebase...");
+
+                // user feedback if it takes too long
+                const timeoutDetails = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Request timed out. Check your internet connection.")), 15000)
+                );
+
+                await Promise.race([
+                    auth.signInWithEmailAndPassword(email, password),
+                    timeoutDetails
+                ]);
+
+                console.log("Login Successful! Redirecting...");
+                alert("Login Successful!");
+                switchView('account');
+            } catch (err) {
+                const msg = getFriendlyErrorMessage(err);
+                console.log("Error: " + msg);
+                alert(msg);
+            } finally {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            console.log("Register button clicked.");
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            if (!name || !email || !password) return alert("Please fill in all fields");
+
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "Creating Account... (Please wait)";
+            submitBtn.disabled = true;
+
+            try {
+                console.log("Sending create user request to Firebase...");
+
+                const timeoutDetails = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Request timed out. Check your internet connection.")), 15000)
+                );
+
+                const cred = await Promise.race([
+                    auth.createUserWithEmailAndPassword(email, password),
+                    timeoutDetails
+                ]);
+
+                console.log("User created. Updating profile...");
+                await cred.user.updateProfile({ displayName: name });
+
+                console.log("Registration Successful! Redirecting...");
+                alert("Registration Successful!");
+                switchView('account');
+            } catch (err) {
+                const msg = getFriendlyErrorMessage(err);
+                console.log("Error: " + msg);
+                alert(msg);
+            } finally {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function handleLogout() {
+            await auth.signOut();
+            alert("Logged Out");
+            switchView('home');
+        }
+
+        function performSearch(q) {
+            if (!q) return switchView(currentView);
+            const term = q.toLowerCase();
+            const resProd = products.filter(p => p.name.toLowerCase().includes(term) ||
+                p.category.toLowerCase().includes(term));
+            const resServ = services.filter(s => s.name.toLowerCase().includes(term));
+
+            document.querySelectorAll('.view-section').forEach(e => e.classList.add('hidden'));
+            const view = document.getElementById('view-search');
+            view.classList.remove('hidden');
+
+            document.getElementById('search-query-display').textContent = `Found ${resProd.length + resServ.length}
+            results`;
+            const grid = document.getElementById('search-results-grid');
+            let html = '';
+
+            resProd.forEach(p => {
+                html += `
+            <div class="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg">
+                <div class="h-40 bg-gray-100 relative"><img src="${p.image}" class="w-full h-full object-cover"></div>
+                <div class="p-4">
+                    <h3 class="font-bold line-clamp-1">${p.name}</h3>
+                    <p class="text-sky-600 font-bold mb-2">Ugshs ${p.price.toLocaleString()}</p>
+                    <button onclick="addToCartAndCheckout(${p.id})"
+                        class="w-full bg-gray-900 text-white text-xs font-bold py-2 rounded">Buy</button>
+                </div>
+            </div>`;
+            });
+            resServ.forEach(s => {
+                html += `
+            <div class="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg">
+                <div class="h-40 bg-gray-100 relative"><img src="${s.image}" class="w-full h-full object-cover"></div>
+                <div class="p-4">
+                    <h3 class="font-bold">${s.name}</h3>
+                    <p class="text-pink-600 font-bold mb-2">Ugshs ${s.price.toLocaleString()}</p>
+                    <button onclick="showBookingOptions('${s.name}')"
+                        class="w-full bg-gray-900 text-white text-xs font-bold py-2 rounded">Book</button>
+                </div>
+            </div>`;
+            });
+            grid.innerHTML = html || '<div class="col-span-full text-center py-10">No results</div>';
+        }
+
+        function showBookingOptions(name) {
+            document.getElementById('booking-service-name').textContent = "Booking: " + name;
+            document.getElementById('booking-whatsapp').href = `https://wa.me/256702370441?text=Booking ${name}`;
+            document.getElementById('booking-modal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('booking-modal').classList.remove('opacity-0'), 10);
+        }
+
+        function closeBookingModal() {
+            document.getElementById('booking-modal').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('booking-modal').classList.add('hidden'), 300);
+        }
+
+        // Init
+        loadData();
+        switchView('home');
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
