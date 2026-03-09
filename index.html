@@ -878,24 +878,27 @@
             services = servicesTemplate;
             console.log("Loading data from Supabase...");
             try {
+                // Load Settings
                 const { data: settingsData, error: sErr } = await _supabase.from('site_settings').select('*');
-                if (sErr) console.error("Settings error:", sErr);
                 if (settingsData && settingsData.length > 0) {
                     settingsData.forEach(s => { appSettings[s.key] = s.value; });
                     updateHeroImages();
                 }
 
+                // Load Products
                 const { data: productsData, error: pErr } = await _supabase.from('products').select('*');
+
                 if (pErr) {
-                    console.error("Products error:", pErr);
-                    products = productsTemplate;
+                    console.error("Supabase products error:", pErr);
+                    products = productsTemplate; // Fallback only on error
                 } else if (productsData && productsData.length > 0) {
-                    console.log("Successfully fetched products:", productsData.length);
+                    console.log("Found products in Supabase:", productsData.length);
                     products = productsData;
                 } else {
-                    console.warn("Supabase products table is empty. Falling back to template.");
-                    products = productsTemplate;
+                    console.log("Supabase products table is empty.");
+                    products = []; // Keep empty so we can see the 'Empty' state and Seed button
                 }
+
                 renderProducts();
             } catch (error) {
                 console.error("Critical load failure:", error);
