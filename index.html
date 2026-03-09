@@ -721,7 +721,7 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs (Compat) -->
+    <!-- Supabase Integration -->
 
 
     <script>
@@ -735,6 +735,7 @@
         let services = [];
         const cart = [];
         let currentView = 'home';
+        let currentUser = null;
         let appSettings = {
             hero1: "https://frohub.com/wp-content/uploads/2024/11/brown-fulani-braids.jpg",
             hero2: "https://media.istockphoto.com/id/1973193559/photo/smiling-barber-trimming-a-customers-hair-in-a-busy-barber-shop.jpg?s=612x612&w=0&k=20&c=K6zK0el3L59wPbfl2RM4veJvo8M9tBtqrNHdS0S4gk8=",
@@ -892,10 +893,10 @@
                     console.error("Supabase products error:", pErr);
                     products = productsTemplate;
                 } else if (productsData && productsData.length > 0) {
-                    console.log("Found products in Supabase:", productsData.length);
+                    console.log("Successfully loaded products from Supabase:", productsData.length);
                     products = productsData;
                 } else {
-                    console.log("Supabase products table is empty.");
+                    console.warn("Supabase products table is empty or inaccessible.");
                     products = [];
                 }
 
@@ -927,7 +928,7 @@
                 { key: 'hero2', value: hero2 },
                 { key: 'hero3', value: hero3 }
             ];
-            const { error } = await _supabase.from('site_settings').upsert(updates);
+            const { error } = await _supabase.from('site_settings').upsert(updates, { onConflict: 'key' });
             if (error) alert("Error saving: " + error.message);
             else { alert("Settings saved!"); location.reload(); }
         }
@@ -935,11 +936,7 @@
         function switchView(viewName) {
             console.log("Switching to view:", viewName);
             currentView = viewName;
-
-            // Hide all views
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-
-            // Show target
             const target = document.getElementById(`view-${viewName}`);
             if (target) {
                 target.classList.remove('hidden');
@@ -947,32 +944,44 @@
                 void target.offsetWidth;
                 target.classList.add('animate-fade-in');
             }
-
             updateNavUI(viewName);
-
             window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            // Save current view for persistency on refresh
             localStorage.setItem('sera_last_view', viewName);
         }
 
         function updateNavUI(viewName) {
+            // Desktop
             document.querySelectorAll('nav .nav-btn').forEach(b => {
                 b.classList.remove('text-sky-600', 'active');
                 b.classList.add('text-gray-500');
             });
             const active = document.getElementById(`nav-${viewName}`);
-            if (active) { active.classList.add('text-sky-600', 'active'); active.classList.remove('text-gray-500'); }
+            if (active) {
+                active.classList.add('text-sky-600', 'active');
+                active.classList.remove('text-gray-500');
+            }
 
-            document.querySelectorAll('[id^="mobile-nav-"]').forEach(b => b.classList.remove('text-sky-600'));
-            const mobileActive = document.getElementById(`mobile-nav-${viewName}`);
-            if (mobileActive) mobileActive.classList.add('text-sky-600');
+            // Mobile
+            document.querySelectorAll('[id^="mobile-nav-"]').forEach(b => {
+                b.classList.remove('text-sky-600', 'active');
+                b.classList.add('text-gray-500');
+            });
+
+            const mobileActiveId = (viewName === 'account' || viewName === 'login' || viewName === 'register')
+                ? (document.getElementById('mobile-nav-account') ? 'mobile-nav-account' : 'mobile-nav-file')
+                : `mobile-nav-${viewName}`;
+
+            const mobileActive = document.getElementById(mobileActiveId);
+            if (mobileActive) {
+                mobileActive.classList.add('text-sky-600', 'active');
+                mobileActive.classList.remove('text-gray-500');
+            }
         }
 
         // --- AUTH & DATA SYNC ---
-        // Single listener for auth changes
         _supabase.auth.onAuthStateChanged((event, session) => {
             const user = session?.user;
+            currentUser = user; // Sync global user
             console.log("Supabase Auth Event:", event, "User Email:", user?.email);
 
             const authBtn = document.getElementById('auth-btn');
@@ -1023,11 +1032,9 @@
                 if (prodMgr) prodMgr.classList.add('hidden');
             }
 
-            // Always load data after auth state is resolved
             loadData();
 
-            // Handle initial view state
-            if (event === 'INITIAL_SESSION') {
+            if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
                 const lastView = localStorage.getItem('sera_last_view');
                 if (lastView && lastView !== 'login' && lastView !== 'register') {
                     switchView(lastView);
@@ -1049,14 +1056,14 @@
 
             const { error } = await _supabase.from('products').insert([newProd]);
             if (error) alert(error.message);
-            else { alert("Product added!"); location.reload(); }
+            else { alert("Product added!"); loadData(); }
         }
 
         async function deleteProduct(id) {
             if (!confirm("Delete product?")) return;
             const { error } = await _supabase.from('products').delete().eq('id', id);
             if (error) alert(error.message);
-            else { alert("Deleted"); location.reload(); }
+            else { alert("Deleted"); loadData(); }
         }
 
         function renderAdminProducts() {
@@ -1100,59 +1107,6 @@
             }
         }
 
-        // --- UI FUNCTIONS ---
-        function switchView(viewName) {
-            console.log("Switching to view:", viewName);
-            currentView = viewName;
-
-            // Hide all views
-            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-
-            // Show target
-            const target = document.getElementById(`view-${viewName}`);
-            if (target) {
-                target.classList.remove('hidden');
-                target.classList.remove('animate-fade-in');
-                void target.offsetWidth;
-                target.classList.add('animate-fade-in');
-            }
-
-            updateNavUI(viewName);
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            localStorage.setItem('sera_last_view', viewName);
-        }
-
-        function updateNavUI(viewName) {
-            // Desktop
-            document.querySelectorAll('nav .nav-btn').forEach(b => {
-                b.classList.remove('text-sky-600', 'active');
-                b.classList.add('text-gray-500');
-            });
-            const active = document.getElementById(`nav-${viewName}`);
-            if (active) {
-                active.classList.add('text-sky-600', 'active');
-                active.classList.remove('text-gray-500');
-            }
-
-            // Mobile
-            document.querySelectorAll('[id^="mobile-nav-"]').forEach(b => {
-                b.classList.remove('text-sky-600', 'active');
-                b.classList.add('text-gray-500');
-            });
-
-            // Special case for account/login mobile button
-            const mobileActiveId = (viewName === 'account' || viewName === 'login' || viewName === 'register')
-                ? (document.getElementById('mobile-nav-account') ? 'mobile-nav-account' : 'mobile-nav-file')
-                : `mobile-nav-${viewName}`;
-
-            const mobileActive = document.getElementById(mobileActiveId);
-            if (mobileActive) {
-                mobileActive.classList.add('text-sky-600', 'active');
-                mobileActive.classList.remove('text-gray-500');
-            }
-        }
-
         function renderServices() {
             // Services are now hardcoded in HTML.
             // This function is kept empty or can be removed.
@@ -1165,10 +1119,9 @@
             if (!container) return;
 
             if (products.length === 0) {
-                const session = _supabase.auth.getSession();
-                const isUserLoggedIn = session !== null;
+                const isUserLoggedIn = currentUser !== null;
                 const actionBtn = isUserLoggedIn
-                    ? `<button onclick="switchView('account')" class="mt-4 bg-sky-600 text-white px-6 py-2 rounded-full font-bold hover:bg-sky-700 transition">Go to Account to Seed Data</button>`
+                    ? `<button onclick="seedDatabase()" class="mt-4 bg-sky-600 text-white px-6 py-2 rounded-full font-bold hover:bg-sky-700 transition">Seed Data Now</button>`
                     : `<button onclick="switchView('login')" class="mt-4 bg-gray-900 text-white px-6 py-2 rounded-full font-bold hover:bg-gray-800 transition">Sign In to Seed Data</button>`;
 
                 container.innerHTML = `
@@ -1320,31 +1273,23 @@
         // ERROR HANDLER
         function getFriendlyErrorMessage(error) {
             console.error(error);
-            const code = error.code;
-            if (code === 'auth/operation-not-allowed') {
-                return `Email/Password login is currently DISABLED. 
-Please go to the Firebase Console > Authentication > Sign-in method, select 'Email/Password', enable it, and click Save.`;
+            const message = error.message || "";
+            if (message.includes('Email link is invalid')) {
+                return `The login link is invalid or expired.`;
             }
-            if (code === 'auth/network-request-failed') {
-                return `Network Error. 
-If you are running this from a file (file://), try using a local server or checking your internet connection.`;
+            if (message.includes('network')) {
+                return `Network Error. Please check your internet connection.`;
             }
-            if (code === 'auth/email-already-in-use') {
+            if (message.includes('already registered')) {
                 return "This email is already registered. Please Login instead.";
             }
-            if (code === 'auth/weak-password') {
+            if (message.includes('weak password')) {
                 return "Password is too weak. Please use at least 6 characters.";
             }
-            if (code === 'auth/user-not-found') {
-                return "No account found with this email. Please Register first.";
-            }
-            if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+            if (message.includes('Invalid login credentials')) {
                 return "Invalid email or password.";
             }
-            if (code === 'auth/invalid-email') {
-                return "Please enter a valid email address.";
-            }
-            return "Error: " + error.message;
+            return "Error: " + message;
         }
 
         async function handleLogin(e) {
@@ -1480,8 +1425,15 @@ If you are running this from a file (file://), try using a local server or check
         // --- INITIALIZATION ---
         window.addEventListener('DOMContentLoaded', () => {
             console.log("DOM loaded, initializing scripts...");
-            updateNavUI('home');
-            lucide.createIcons();
+            // Initialize auth state
+            _supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session) {
+                    currentUser = session.user;
+                    // Trigger auth changed manually if needed, or let the listener handle it
+                }
+                loadData();
+                lucide.createIcons();
+            });
         });
     </script>
 </body>
