@@ -1104,7 +1104,11 @@
         function switchView(viewName) {
             console.log("Switching to view:", viewName);
             currentView = viewName;
+
+            // Hide all views
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+
+            // Show target
             const target = document.getElementById(`view-${viewName}`);
             if (target) {
                 target.classList.remove('hidden');
@@ -1112,9 +1116,41 @@
                 void target.offsetWidth;
                 target.classList.add('animate-fade-in');
             }
+
             updateNavUI(viewName);
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
             localStorage.setItem('sera_last_view', viewName);
+        }
+
+        function updateNavUI(viewName) {
+            // Desktop
+            document.querySelectorAll('nav .nav-btn').forEach(b => {
+                b.classList.remove('text-sky-600', 'active');
+                b.classList.add('text-gray-500');
+            });
+            const active = document.getElementById(`nav-${viewName}`);
+            if (active) {
+                active.classList.add('text-sky-600', 'active');
+                active.classList.remove('text-gray-500');
+            }
+
+            // Mobile
+            document.querySelectorAll('[id^="mobile-nav-"]').forEach(b => {
+                b.classList.remove('text-sky-600', 'active');
+                b.classList.add('text-gray-500');
+            });
+
+            // Special case for account/login mobile button
+            const mobileActiveId = (viewName === 'account' || viewName === 'login' || viewName === 'register')
+                ? (document.getElementById('mobile-nav-account') ? 'mobile-nav-account' : 'mobile-nav-file')
+                : `mobile-nav-${viewName}`;
+
+            const mobileActive = document.getElementById(mobileActiveId);
+            if (mobileActive) {
+                mobileActive.classList.add('text-sky-600', 'active');
+                mobileActive.classList.remove('text-gray-500');
+            }
         }
 
         function renderServices() {
@@ -1447,3 +1483,7 @@ If you are running this from a file (file://), try using a local server or check
             updateNavUI('home');
             lucide.createIcons();
         });
+    </script>
+</body>
+
+</html>
