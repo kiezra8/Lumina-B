@@ -937,12 +937,55 @@
             }
         }
 
+        function switchView(viewName) {
+            console.log("Switching to view:", viewName);
+            currentView = viewName;
+
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+
+            // Show target
+            const target = document.getElementById(`view-${viewName}`);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.remove('animate-fade-in');
+                void target.offsetWidth;
+                target.classList.add('animate-fade-in');
+            }
+
+            // Update Nav State
+            updateNavUI(viewName);
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Save current view for persistency on refresh
+            localStorage.setItem('sera_last_view', viewName);
+        }
+
+        function updateNavUI(viewName) {
+            // Desktop
+            document.querySelectorAll('nav .nav-btn').forEach(b => {
+                b.classList.remove('text-sky-600', 'active');
+                b.classList.add('text-gray-500');
+            });
+            const active = document.getElementById(`nav-${viewName}`);
+            if (active) { active.classList.add('text-sky-600', 'active'); active.classList.remove('text-gray-500'); }
+
+            // Mobile
+            document.querySelectorAll('[id^="mobile-nav-"]').forEach(b => b.classList.remove('text-sky-600'));
+            const mobileActive = document.getElementById(`mobile-nav-${viewName}`);
+            if (mobileActive) mobileActive.classList.add('text-sky-600');
+        }
+
+        // --- AUTH & DATA SYNC ---
         _supabase.auth.onAuthStateChanged((event, session) => {
             const user = session?.user;
+            console.log("Auth Event:", event, "User:", user?.email);
+
             const authBtn = document.getElementById('auth-btn');
             const mobileAuthBtn = document.getElementById('mobile-nav-file');
             const mobileAuthText = document.getElementById('mobile-auth-text');
-            const isAdmin = user && user.email === 'israelezrakisakye@gmail.com'; // Based on conversation history
+            const isAdmin = user && user.email === 'israelezrakisakye@gmail.com';
 
             if (user) {
                 authBtn.textContent = 'Account';
@@ -953,15 +996,16 @@
                     mobileAuthBtn.id = 'mobile-nav-account';
                 }
                 if (mobileAuthText) mobileAuthText.textContent = 'Account';
+
                 document.getElementById('account-email').textContent = user.email;
-                document.getElementById('account-name').textContent = user.user_metadata?.full_name || 'User';
+                document.getElementById('account-name').textContent = user.user_metadata?.full_name || 'Valued Customer';
 
                 if (isAdmin) {
                     document.getElementById('admin-image-manager').classList.remove('hidden');
                     document.getElementById('admin-product-manager').classList.remove('hidden');
                     renderAdminProducts();
                     const catSelect = document.getElementById('new-prod-cat');
-                    catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+                    if (catSelect) catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
                 }
             } else {
                 authBtn.textContent = 'Sign In';
@@ -973,6 +1017,17 @@
                 if (mobileAuthText) mobileAuthText.textContent = 'Sign In';
                 document.getElementById('admin-image-manager').classList.add('hidden');
                 document.getElementById('admin-product-manager').classList.add('hidden');
+            }
+
+            // Reload data whenever auth state changes to handle RLS
+            loadData();
+
+            // Restore last view on initial load
+            if (event === 'INITIAL_SESSION') {
+                const lastView = localStorage.getItem('sera_last_view');
+                if (lastView && lastView !== 'login' && lastView !== 'register') {
+                    switchView(lastView);
+                }
             }
         });
 
@@ -1420,8 +1475,7 @@ If you are running this from a file (file://), try using a local server or check
         }
 
         // Init
-        loadData();
-        switchView('home');
+        // Note: loadData is now called via onAuthStateChanged to ensure session is ready
         lucide.createIcons();
     </script>
 </body>
