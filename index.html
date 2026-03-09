@@ -866,7 +866,7 @@
                         category: cat,
                         name: name,
                         price: basePrice + (Math.floor(Math.random() * 20) * 1000),
-                        rating: (Math.random() * (5.0 - 3.8) + 3.8).toFixed(1),
+                        rating: parseFloat((Math.random() * (5.0 - 3.8) + 3.8).toFixed(1)),
                         image: catImages[i % catImages.length]
                     });
                 }
@@ -876,31 +876,33 @@
         // --- CORE FUNCTIONS ---
         async function loadData() {
             services = servicesTemplate;
+            console.log("Loading data from Supabase...");
             try {
-                // Load Settings
-                const { data: settingsData } = await _supabase.from('site_settings').select('*');
+                const { data: settingsData, error: sErr } = await _supabase.from('site_settings').select('*');
+                if (sErr) console.error("Settings error:", sErr);
                 if (settingsData && settingsData.length > 0) {
-                    settingsData.forEach(s => {
-                        appSettings[s.key] = s.value;
-                    });
+                    settingsData.forEach(s => { appSettings[s.key] = s.value; });
                     updateHeroImages();
                 }
 
-                const { data: productsData, error } = await _supabase.from('products').select('*');
-                if (productsData && productsData.length > 0) {
+                const { data: productsData, error: pErr } = await _supabase.from('products').select('*');
+                if (pErr) {
+                    console.error("Products error:", pErr);
+                    products = productsTemplate;
+                } else if (productsData && productsData.length > 0) {
+                    console.log("Successfully fetched products:", productsData.length);
                     products = productsData;
                 } else {
-                    console.warn("Supabase empty. Using local template data.");
+                    console.warn("Supabase products table is empty. Falling back to template.");
                     products = productsTemplate;
                 }
                 renderProducts();
             } catch (error) {
-                console.error("Data load failed:", error);
-                if (products.length === 0) products = productsTemplate;
+                console.error("Critical load failure:", error);
+                products = productsTemplate;
                 renderProducts();
             }
         }
-
         function updateHeroImages() {
             const heroImgs = document.querySelectorAll('#view-home .animate-kenburns');
             if (heroImgs[0]) heroImgs[0].src = appSettings.hero1;
@@ -1024,26 +1026,32 @@
             const btn = document.getElementById('seed-btn');
             if (btn) {
                 btn.disabled = true;
-                btn.innerText = "Seeding... (Please Wait)";
+                btn.innerText = "Seeding... (Be Patient)";
             }
 
             try {
-                // Seed Products
-                const { error: pError } = await _supabase.from('products').upsert(productsTemplate);
-                // Seed Services
-                const { error: sError } = await _supabase.from('services').upsert(servicesTemplate);
-                // Seed Initial Settings
+                console.log("Preparing to seed products...");
+                const { error: pError } = await _supabase.from('products').upsert(productsTemplate, { onConflict: 'id' });
+                if (pError) throw pError;
+                console.log("Products seeded.");
+
+                const { error: sError } = await _supabase.from('services').upsert(servicesTemplate, { onConflict: 'id' });
+                if (sError) throw sError;
+                console.log("Services seeded.");
+
                 const initialSettings = [
                     { key: 'hero1', value: appSettings.hero1 },
                     { key: 'hero2', value: appSettings.hero2 },
                     { key: 'hero3', value: appSettings.hero3 }
                 ];
-                await _supabase.from('site_settings').upsert(initialSettings);
+                const { error: setErr } = await _supabase.from('site_settings').upsert(initialSettings, { onConflict: 'key' });
+                if (setErr) throw setErr;
 
-                alert("Supabase Seeded Successfully!");
+                alert("Supabase Seeded Successfully! The page will now refresh.");
                 location.reload();
             } catch (e) {
-                alert("Error seeding: " + e.message);
+                console.error("Seeding failed:", e);
+                alert("Seeding Error: " + (e.message || "Check console for details"));
             } finally {
                 if (btn) {
                     btn.disabled = false;
