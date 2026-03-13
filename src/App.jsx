@@ -26,6 +26,7 @@ export default function App() {
     const [view, setView] = useState(initialView);
     const [user, setUser] = useState(null);
     const [products, setProducts] = useState([]);
+    const [services, setServices] = useState([]);
     const [cart, setCart] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -87,6 +88,9 @@ export default function App() {
 
         const { data: productsData } = await supabase.from('products').select('*');
         if (productsData) setProducts(productsData);
+
+        const { data: servicesData } = await supabase.from('services').select('*');
+        if (servicesData) setServices(servicesData);
     };
 
     const handleAddToCart = (product, e) => {
@@ -127,17 +131,22 @@ export default function App() {
                     ) : view === 'home' ? (
                         <HomeView settings={settings} setView={setView} products={products} onAddToCart={handleAddToCart} onProductClick={setSelectedProduct} />
                     ) : view === 'services' ? (
-                        <ServicesView />
+                        <ServicesView isAdmin={isAdmin} services={services} onRefresh={loadData} />
                     ) : view === 'products' ? (
                         <ProductsView
                             products={products}
+                            settings={settings}
+                            isAdmin={isAdmin}
                             onCategorySelect={(cat) => { setSelectedCategory(cat); setView('category'); }}
                             onSeed={loadData}
+                            onRefresh={loadData}
                         />
                     ) : view === 'category' ? (
                         <CategoryView
                             category={selectedCategory}
                             products={products.filter(p => p.category === selectedCategory)}
+                            isAdmin={isAdmin}
+                            onRefresh={loadData}
                             onAddToCart={handleAddToCart}
                             onProductClick={setSelectedProduct}
                         />

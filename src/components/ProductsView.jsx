@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Database, ChevronRight } from 'lucide-react';
+import { Database, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const CATEGORIES = [
     "Perfumes, Colognes & Oils",
@@ -38,9 +39,36 @@ const CATEGORY_META = {
     },
 };
 
-export function ProductsView({ products, onCategorySelect, onSeed }) {
+export function ProductsView({ products, settings, isAdmin, onRefresh, onCategorySelect, onSeed }) {
     const productCounts = {};
+    const [uploadingCat, setUploadingCat] = useState(null);
+
     CATEGORIES.forEach(c => { productCounts[c] = products.filter(p => p.category === c).length; });
+
+    const handleImageUpload = async (cat, e) => {
+        const file = e.target.files[0];
+        if(!file) return;
+
+        setUploadingCat(cat);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `cat_${Date.now()}.${fileExt}`;
+            const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file, { upsert: true });
+            if (uploadError) throw uploadError;
+
+            const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(fileName);
+            const imageUrl = urlData.publicUrl;
+
+            const { error } = await supabase.from('site_settings').upsert({ key: `cat_img_${cat}`, value: imageUrl }, { onConflict: 'key' });
+            if (error) throw error;
+
+            onRefresh();
+        } catch (err) {
+            alert("Error uploading category image: " + err.message);
+        } finally {
+            setUploadingCat(null);
+        }
+    };
 
     if (products.length === 0) {
         return (
@@ -71,6 +99,8 @@ export function ProductsView({ products, onCategorySelect, onSeed }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {CATEGORIES.map((cat, idx) => {
                     const meta = CATEGORY_META[cat];
+                    const bgImage = settings[`cat_img_${cat}`] || meta.image;
+
                     return (
                         <motion.div
                             key={cat}
@@ -81,7 +111,25 @@ export function ProductsView({ products, onCategorySelect, onSeed }) {
                             className={`relative rounded-[2.5rem] overflow-hidden cursor-pointer group shadow-2xl transition-all duration-500 hover:-translate-y-2 border-4 border-white ${idx === 4 ? 'md:col-span-2' : ''}`}
                             style={{ height: idx === 4 ? '280px' : '320px' }}
                         >
-                            <img src={meta.image} className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={cat} />
+                            <img src={bgImage} className={`absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 ${uploadingCat === cat ? 'opacity-50 blur-sm' : ''}`} alt={cat} />
+                            
+                            {isAdmin && (
+                                <div className="absolute top-6 right-6 z-20">
+                                    <div className="relative bg-white/90 backdrop-blur-sm p-3 rounded-xl shadow-lg hover:bg-white text-gray-900 transition flex items-center justify-center cursor-pointer">
+                                        <ImageIcon className="w-5 h-5 mr-2" />
+                                        <span className="text-sm font-bold">{uploadingCat === cat ? 'Uploading...' : 'Change Image'}</span>
+                                        <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            onChange={(e) => handleImageUpload(cat, e)} 
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                                            onClick={e => e.stopPropagation()} 
+                                            disabled={uploadingCat === cat}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
                             <div className="absolute inset-0 flex flex-col justify-end p-10">
                                 <div className="text-4xl mb-2">{meta.emoji}</div>

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Star } from 'lucide-react';
+import { Star, Image as ImageIcon } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const SERVICES = [
     {
@@ -61,7 +62,37 @@ const SERVICES = [
     },
 ];
 
-export function ServicesView() {
+export function ServicesView({ isAdmin, services, onRefresh }) {
+    const [uploadingSvc, setUploadingSvc] = useState(null);
+
+    // Filter local template if DB isn't seeded yet
+    const displayServices = services && services.length > 0 ? services : SERVICES;
+
+    const handleServiceImageUpload = async (svcId, e) => {
+        const file = e.target.files[0];
+        if(!file) return;
+
+        setUploadingSvc(svcId);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `svc_${Date.now()}.${fileExt}`;
+            const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file, { upsert: true });
+            if (uploadError) throw uploadError;
+
+            const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(fileName);
+            const imageUrl = urlData.publicUrl;
+
+            const { error } = await supabase.from('services').update({ image: imageUrl }).eq('id', svcId);
+            if (error) throw error;
+
+            onRefresh();
+        } catch (err) {
+            alert("Error uploading service image: " + err.message);
+        } finally {
+            setUploadingSvc(null);
+        }
+    };
+
     return (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="container mx-auto px-4 py-8">
             {/* Header */}
@@ -76,7 +107,7 @@ export function ServicesView() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {SERVICES.map((s, idx) => (
+                {displayServices.map((s, idx) => (
                     <motion.div
                         key={s.id}
                         initial={{ opacity: 0, y: 30 }}
@@ -85,7 +116,24 @@ export function ServicesView() {
                         className="bg-white rounded-3xl overflow-hidden shadow-xl border border-gray-100 group transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
                     >
                         <div className="h-64 overflow-hidden relative">
-                            <img src={s.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={s.name} />
+                            <img src={s.image} className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${uploadingSvc === s.id ? 'opacity-50 blur-sm' : ''}`} alt={s.name} />
+                            
+                            {isAdmin && (
+                                <div className="absolute top-4 right-4 z-20">
+                                    <div className="relative bg-white/90 backdrop-blur-sm p-3 rounded-xl shadow-lg hover:bg-white text-gray-900 transition flex items-center justify-center cursor-pointer">
+                                        <ImageIcon className="w-5 h-5 mr-2" />
+                                        <span className="text-sm font-bold">{uploadingSvc === s.id ? 'Uploading...' : 'Change'}</span>
+                                        <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            onChange={(e) => handleServiceImageUpload(s.id, e)} 
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                                            disabled={uploadingSvc === s.id}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent" />
                         </div>
                         <div className="p-8">
