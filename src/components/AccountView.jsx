@@ -117,14 +117,7 @@ function ProductModal({ product, onClose, onSaved }) {
                                 <span className="text-white font-bold text-sm">Change Image</span>
                             </div>
                         </div>
-                        <p className="text-xs text-gray-400 mt-2">Or paste an image URL below:</p>
-                        <input
-                            type="url"
-                            placeholder="https://..."
-                            value={form.image}
-                            onChange={(e) => { setForm({ ...form, image: e.target.value }); setImagePreview(e.target.value); }}
-                            className="w-full mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-500/20"
-                        />
+
                     </div>
 
                     {/* Name */}
