@@ -20,7 +20,6 @@ export const SERVICES_TEMPLATE = [
     { id: 3, name: "Pedicure", price: 45000, time: "1.5 hrs", image: "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=400" },
     { id: 4, name: "Manicure", price: 35000, time: "1 hr", image: "https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=400" },
     { id: 5, name: "Wig Installation", price: 80000, time: "1-2 hrs", image: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400" },
-    { id: 6, name: "Lashes Fixation", price: 50000, time: "1 hr", image: "https://images.unsplash.com/photo-1583001838473-b1939109772b?w=400" },
     { id: 7, name: "Make Up", price: 100000, time: "1-2 hrs", image: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=400" },
 ];
 

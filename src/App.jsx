@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingCart, Star } from 'lucide-react';
+import { X, ShoppingCart, Star, Image as ImageIcon } from 'lucide-react';
 
 // Component Imports
 import Navbar from './components/Navbar';
@@ -37,6 +37,7 @@ export default function App() {
         hero2: "https://media.istockphoto.com/id/1973193559/photo/smiling-barber-trimming-a-customers-hair-in-a-busy-barber-shop.jpg?s=612x612&w=0&k=20&c=K6zK0el3L59wPbfl2RM4veJvo8M9tBtqrNHdS0S4gk8=",
         hero3: "https://images.unsplash.com/photo-1580870069867-74c57ee1bb07?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2tpbiUyMGNhcmUlMjBwcm9kdWN0c3xlbnwwfHwwfHx8MA%3D%3D"
     });
+    const [uploadingImage, setUploadingImage] = useState(false);
 
     const isAdmin = user?.email === ADMIN_EMAIL;
 
@@ -102,6 +103,32 @@ export default function App() {
         });
         setIsCartOpen(true);
         setSelectedProduct(null); // Close modal if open
+    };
+
+    const handleProductImageUpload = async (product, e) => {
+        const file = e.target.files[0];
+        if(!file) return;
+
+        setUploadingImage(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `product_${Date.now()}.${fileExt}`;
+            const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file, { upsert: true });
+            if (uploadError) throw uploadError;
+
+            const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(fileName);
+            const imageUrl = urlData.publicUrl;
+
+            const { error } = await supabase.from('products').update({ image: imageUrl }).eq('id', product.id);
+            if (error) throw error;
+
+            setSelectedProduct(prev => ({ ...prev, image: imageUrl }));
+            loadData();
+        } catch (err) {
+            alert("Error uploading product image: " + err.message);
+        } finally {
+            setUploadingImage(false);
+        }
     };
 
     const handleCheckout = () => {
@@ -178,8 +205,26 @@ export default function App() {
                             onClick={e => e.stopPropagation()}
                             className="bg-white w-full sm:max-w-xl sm:rounded-[2.5rem] rounded-t-[2.5rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
                         >
-                            <div className="relative h-64 sm:h-80 flex-shrink-0 bg-gray-50">
-                                <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-cover" />
+                            <div className="relative h-64 sm:h-80 flex-shrink-0 bg-gray-50 group">
+                                <img src={selectedProduct.image} alt={selectedProduct.name} className={`w-full h-full object-cover transition duration-300 ${uploadingImage ? 'opacity-50 blur-sm' : ''}`} />
+                                
+                                {isAdmin && (
+                                    <div className="absolute top-4 left-4 z-20">
+                                        <div className="relative bg-white/90 backdrop-blur-sm p-3 rounded-xl shadow-lg hover:bg-white text-sky-600 transition flex items-center justify-center cursor-pointer">
+                                            <ImageIcon className="w-5 h-5 mr-2" />
+                                            <span className="text-sm font-bold">{uploadingImage ? 'Uploading...' : 'Change Image'}</span>
+                                            <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                onChange={(e) => handleProductImageUpload(selectedProduct, e)} 
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                                                onClick={e => e.stopPropagation()} 
+                                                disabled={uploadingImage}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                                
                                 <button
                                     onClick={() => setSelectedProduct(null)}
                                     className="absolute top-4 right-4 bg-white/90 p-2 rounded-full shadow-lg backdrop-blur-md"
