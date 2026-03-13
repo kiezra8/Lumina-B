@@ -10,7 +10,7 @@ export default function Navbar({ view, setView, user, cartCount, onToggleCart, o
                         <Sparkles className="w-6 h-6 text-white" />
                     </div>
                     <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 hidden sm:block">
-                        Sera <span className="text-sky-500">Beauty Shop</span>
+                        Sera <span className="text-sky-500">BS</span>
                     </h1>
                     <h1 className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 sm:hidden">
                         S<span className="text-sky-500">BS</span>

@@ -9,6 +9,7 @@ function ProductModal({ product, onClose, onSaved }) {
     const isEdit = !!product?.id;
     const [form, setForm] = useState({
         name: product?.name || '',
+        description: product?.description || '',
         price: product?.price || '',
         category: product?.category || CATEGORIES[0],
         rating: product?.rating || 4.5,
@@ -51,6 +52,7 @@ function ProductModal({ product, onClose, onSaved }) {
 
             const payload = {
                 name: form.name,
+                description: form.description,
                 price: Number(form.price),
                 category: form.category,
                 rating: Number(form.rating),
@@ -137,6 +139,18 @@ function ProductModal({ product, onClose, onSaved }) {
                         />
                     </div>
 
+                    {/* Description */}
+                    <div>
+                        <label className="text-xs font-black uppercase tracking-wider text-gray-500 mb-2 block">Description</label>
+                        <textarea
+                            rows={3}
+                            placeholder="e.g. A premium formula for everyday glow..."
+                            value={form.description}
+                            onChange={(e) => setForm({ ...form, description: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-sky-500/20"
+                        />
+                    </div>
+
                     {/* Category */}
                     <div>
                         <label className="text-xs font-black uppercase tracking-wider text-gray-500 mb-2 block">Category</label>
@@ -209,7 +223,7 @@ export function AccountView({ user, isAdmin, products, onRefresh }) {
     };
 
     const seedDatabase = async () => {
-        if (!confirm("This will seed the database with 500 products. Continue?")) return;
+        if (!confirm("This will replace current data with 30 fresh products. Continue?")) return;
         setSeeding(true);
         try {
             const productsTemplate = generateProducts();
@@ -319,7 +333,7 @@ export function AccountView({ user, isAdmin, products, onRefresh }) {
                                     {/* Seed DB */}
                                     <div className="p-8 bg-gray-50 rounded-3xl border border-gray-100">
                                         <h4 className="font-black text-lg mb-2">Database Maintenance</h4>
-                                        <p className="text-gray-500 text-sm mb-6">Reset or populate your store with 500 products across all categories.</p>
+                                        <p className="text-gray-500 text-sm mb-6">Reset your store with 30 fresh products across all categories.</p>
                                         <button
                                             onClick={seedDatabase}
                                             disabled={seeding}

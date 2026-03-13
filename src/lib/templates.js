@@ -62,7 +62,7 @@ export function generateProducts() {
 
     CATEGORIES.forEach((cat, catIndex) => {
         const catImages = images[cat];
-        for (let i = 1; i <= 100; i++) {
+        for (let i = 1; i <= 6; i++) {
             const brand = brandNames[Math.floor(Math.random() * brandNames.length)];
             let name, basePrice;
 
@@ -98,6 +98,7 @@ export function generateProducts() {
                 id: (catIndex + 1) * 1000 + i,
                 category: cat,
                 name: name,
+                description: `This premium ${name} from ${brand} is tailored to give you the ultimate ${cat.toLowerCase()} experience. Crafted with care and excellence for your daily routine.`,
                 price: basePrice + (Math.floor(Math.random() * 20) * 1000),
                 rating: parseFloat((Math.random() * (5.0 - 3.8) + 3.8).toFixed(1)),
                 image: catImages[i % catImages.length]
