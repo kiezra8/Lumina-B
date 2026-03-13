@@ -58,7 +58,7 @@ export function HomeView({ settings, setView, products = [], onAddToCart, onProd
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-    const trending = useMemo(() => getTrendingProducts(products), [products.length]);
+    const trending = useMemo(() => getTrendingProducts(products), [products]);
 
     useEffect(() => {
         if (!isAutoPlaying) return;
