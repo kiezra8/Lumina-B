@@ -32,6 +32,10 @@ export function ProductModal({ product, onClose, onSaved }) {
             setError('Name and price are required.');
             return;
         }
+        if (!isEdit && !imageFile && !form.image) {
+            setError('Please upload a product image.');
+            return;
+        }
         setSaving(true);
         setError('');
         try {
@@ -68,7 +72,8 @@ export function ProductModal({ product, onClose, onSaved }) {
             onSaved();
             onClose();
         } catch (e) {
-            setError(e.message);
+            console.error("Save Error:", e);
+            setError(e?.message || e?.error_description || "An unknown error occurred while saving.");
         } finally {
             setSaving(false);
         }
