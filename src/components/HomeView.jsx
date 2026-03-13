@@ -181,7 +181,7 @@ export function HomeView({ settings, setView, products = [], onAddToCart }) {
 
             {/* ─── QUICK ACTION CARDS ─── */}
             <div className="container mx-auto px-4 -mt-16 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div onClick={() => setView('services')} className="relative h-56 rounded-3xl shadow-2xl overflow-hidden cursor-pointer group hover:-translate-y-2 transition-all duration-300 border border-gray-100 bg-white">
                         <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Services" />
                         <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/40 to-transparent flex flex-col justify-end p-6">
@@ -196,13 +196,7 @@ export function HomeView({ settings, setView, products = [], onAddToCart }) {
                             <p className="text-gray-300 text-sm">Curated products for every skin type</p>
                         </div>
                     </div>
-                    <div onClick={() => setView('account')} className="relative h-56 rounded-3xl shadow-2xl overflow-hidden cursor-pointer group hover:-translate-y-2 transition-all duration-300 border border-gray-100 bg-white">
-                        <img src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?w=800" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Profile" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/40 to-transparent flex flex-col justify-end p-6">
-                            <h3 className="text-xl font-black text-white mb-1">Your Profile</h3>
-                            <p className="text-gray-300 text-sm">Manage orders and appointments</p>
-                        </div>
-                    </div>
+
                 </div>
             </div>
 
