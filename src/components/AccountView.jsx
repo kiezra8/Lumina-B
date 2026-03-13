@@ -111,11 +111,11 @@ function ProductModal({ product, onClose, onSaved }) {
                                     <span className="text-sm font-bold">Click to upload image</span>
                                 </div>
                             )}
-                            <input type="file" accept="image/*" onChange={handleImageChange}
-                                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center pointer-events-none">
                                 <span className="text-white font-bold text-sm">Change Image</span>
                             </div>
+                            <input type="file" accept="image/*" onChange={handleImageChange}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                         </div>
 
                     </div>
